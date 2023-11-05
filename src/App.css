@@ -3,9 +3,12 @@
   display: block;
   width: 100%;
   height: auto;
-  border: 1px solid;
   border-radius: 10px;
   /* transition: 0.2s; */
+}
+.image-area {
+  border: 1px solid;
+  border-radius: 10px;
 }
 
 .middle {
@@ -28,7 +31,7 @@
 }
 
 .image-box:hover .image {
-  opacity: 0.3;
+  opacity: 0.7;
 }
 
 .selected-image .check {
@@ -198,3 +201,13 @@
     min-height: 150px;
   }
 }  */
+.image-box {
+  transition: transform 0.2s ease;
+}
+
+.image-box.selected-image {
+  transform: scale(1.05);
+}
+.hidden-image {
+  opacity: 0 !important;
+}

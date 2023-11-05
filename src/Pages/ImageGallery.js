@@ -60,14 +60,21 @@ const ImageGallery = () => {
   const onDragStart = (event, index) => {
     dragStartIndex.current = index;
     dragImageRef.current = event.target;
+    // Hide the original image by adding the 'hidden-image' class
+    dragImageRef.current.classList.add('hidden-image');
     event.dataTransfer.setData('text/plain', 'dragging');
   };
 
   const onDragEnd = () => {
     dragImageRef.current = null;
     dragStartIndex.current = null;
-  };
 
+    // Make the original image visible again by removing the 'hidden-image' class
+    const originalImage = document.querySelector('.hidden-image');
+    if (originalImage) {
+      originalImage.classList.remove('hidden-image');
+    }
+  };
   const onDrop = (event, index) => {
     event.preventDefault();
     const imagesCopy = [...images];
@@ -158,22 +165,29 @@ const ImageGallery = () => {
       <div>
         <Container>
           <Card>
-            <Card.Header className="d-flex justify-content-between">
-              <div className="d-flex align-items-center">
-                <input
-                  type="checkbox"
-                  checked={allSelect}
-                  onChange={onAllSelected}
-                  className="mx-1"
-                  style={{ height: 15, width: 15 }}
-                />
-                {count > 1 ? ' ' + count + ' Files' : ' ' + count + ' File'}{' '}
-                Selected
-              </div>
-              <Button onClick={onImageDelete} variant="danger">
-                Delete
-              </Button>
-            </Card.Header>
+            {count ? (
+              <Card.Header className="d-flex justify-content-between fw-bold">
+                <div className="d-flex align-items-center">
+                  <input
+                    type="checkbox"
+                    checked={allSelect}
+                    onChange={onAllSelected}
+                    className="mx-1"
+                    style={{ height: 15, width: 15 }}
+                  />
+                  {count > 1 ? ' ' + count + ' Files' : ' ' + count + ' File'}{' '}
+                  Selected
+                </div>
+                <Button onClick={onImageDelete} variant="danger">
+                  Delete
+                </Button>
+              </Card.Header>
+            ) : (
+              <Card.Header className="d-flex justify-content-between fw-bold py-3">
+                Gallery
+              </Card.Header>
+            )}
+
             <Card.Body>
               <div className="containers">
                 {images.map((image, index) => (
@@ -192,16 +206,18 @@ const ImageGallery = () => {
                       checked={image.isChecked}
                       type="checkbox"
                     />
-                    <img
-                      src={image.src}
-                      height={100}
-                      onClick={() => onChangeCheck(index)}
-                      className="image w-100"
-                      alt={`Image ${image.id}`}
-                      draggable
-                      onDragStart={(e) => onDragStart(e, index)}
-                      onDragEnd={onDragEnd}
-                    />
+                    <div className="image-area ">
+                      <img
+                        src={image.src}
+                        height={100}
+                        onClick={() => onChangeCheck(index)}
+                        className="image w-100"
+                        alt={`Image ${image.id}`}
+                        draggable
+                        onDragStart={(e) => onDragStart(e, index)}
+                        onDragEnd={onDragEnd}
+                      />
+                    </div>
                   </div>
                 ))}
                 <div
