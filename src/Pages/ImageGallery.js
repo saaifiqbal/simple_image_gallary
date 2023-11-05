@@ -20,6 +20,7 @@ const ImageGallery = () => {
   const fileInputRef = useRef(null);
   const dragImageRef = useRef(null);
   const dragStartIndex = useRef(null);
+  const [allSelect, setAllSelect] = useState(false);
 
   const selectFiles = () => {
     fileInputRef.current.click();
@@ -101,11 +102,17 @@ const ImageGallery = () => {
 
   const onChangeCheck = (index) => {
     const updatedImages = [...images];
+    let allSelectUpdated = allSelect;
     let updateCount = count;
     if (updatedImages[index].isChecked) {
       updateCount--;
     } else {
       updateCount++;
+    }
+    if (updateCount === updatedImages.length) {
+      setAllSelect(true);
+    } else {
+      setAllSelect(false);
     }
     updatedImages[index].isChecked = !updatedImages[index].isChecked;
     setImages(updatedImages);
@@ -118,13 +125,51 @@ const ImageGallery = () => {
     setCount(0);
   };
 
+  const onAllSelected = () => {
+    const updatedImages = [...images];
+    const updatedAllSelect = allSelect;
+    console.log(
+      updatedImages.filter((image) => image.isChecked).length,
+      updatedImages.length
+    );
+    if (
+      updatedImages.filter((image) => image.isChecked).length ===
+        updatedImages.length &&
+      updatedAllSelect
+    ) {
+      updatedImages.map((image, index) => {
+        updatedImages[index].isChecked = false;
+      });
+      setCount(0);
+      setAllSelect(false);
+    } else {
+      updatedImages.map((image, index) => {
+        if (updatedImages[index].isChecked === false) {
+          updatedImages[index].isChecked = true;
+        }
+      });
+      setCount(updatedImages.length);
+      setAllSelect(true);
+    }
+  };
+
   return (
     <Fragment>
       <div>
         <Container>
           <Card>
             <Card.Header className="d-flex justify-content-between">
-              <div>{count} Select</div>
+              <div className="d-flex align-items-center">
+                <input
+                  type="checkbox"
+                  checked={allSelect}
+                  onChange={onAllSelected}
+                  className="mx-1"
+                  style={{ height: 15, width: 15 }}
+                />
+                {count > 1 ? ' ' + count + ' Files' : ' ' + count + ' File'}{' '}
+                Selected
+              </div>
               <Button onClick={onImageDelete} variant="danger">
                 Delete
               </Button>
