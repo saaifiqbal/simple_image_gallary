@@ -68,4 +68,5 @@
   user-select: none;
   /* max-width: 200px !important; */
   height: 100%;
+  min-height: 200px;
 }

@@ -18,6 +18,8 @@ const ImageGallery = () => {
   const [count, setCount] = useState(0);
   const [isDragging, setDragging] = useState(false);
   const fileInputRef = useRef(null);
+  const dragImageRef = useRef(null);
+  const dragStartIndex = useRef(null);
 
   const selectFiles = () => {
     fileInputRef.current.click();
@@ -46,7 +48,7 @@ const ImageGallery = () => {
   const onDragOver = (event) => {
     event.preventDefault();
     setDragging(true);
-    event.dataTransfer.dropEffect = 'copy';
+    event.dataTransfer.dropEffect = 'move';
   };
 
   const onDragLeave = (event) => {
@@ -54,7 +56,29 @@ const ImageGallery = () => {
     setDragging(false);
   };
 
-  const onDrop = (event) => {
+  const onDragStart = (event, index) => {
+    dragStartIndex.current = index;
+    dragImageRef.current = event.target;
+    event.dataTransfer.setData('text/plain', 'dragging');
+  };
+
+  const onDragEnd = () => {
+    dragImageRef.current = null;
+    dragStartIndex.current = null;
+  };
+
+  const onDrop = (event, index) => {
+    event.preventDefault();
+    const imagesCopy = [...images];
+    const dragIndex = dragStartIndex.current;
+    const dragImage = imagesCopy[dragIndex];
+    imagesCopy.splice(dragIndex, 1);
+    imagesCopy.splice(index, 0, dragImage);
+    setImages(imagesCopy);
+    setDragging(false);
+  };
+
+  const onDropImage = (event) => {
     event.preventDefault();
     setDragging(false);
     const files = event.dataTransfer.files;
@@ -87,10 +111,11 @@ const ImageGallery = () => {
     setImages(updatedImages);
     setCount(updateCount);
   };
+
   const onImageDelete = () => {
     const updatedImages = images.filter((image) => !image.isChecked);
     setImages(updatedImages);
-    setCount(0); // You may need to update the count based on the new state
+    setCount(0);
   };
 
   return (
@@ -111,9 +136,11 @@ const ImageGallery = () => {
                     key={image.id}
                     className={
                       image.isChecked
-                        ? 'image-box box selected-image '
+                        ? 'image-box box selected-image'
                         : 'image-box box'
                     }
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => onDrop(e, index)}
                   >
                     <input
                       className="check"
@@ -126,18 +153,19 @@ const ImageGallery = () => {
                       onClick={() => onChangeCheck(index)}
                       className="image w-100"
                       alt={`Image ${image.id}`}
+                      draggable
+                      onDragStart={(e) => onDragStart(e, index)}
+                      onDragEnd={onDragEnd}
                     />
                   </div>
                 ))}
-
-                <div className="image-box box">
-                  <div
-                    className="drag-area text-center"
-                    onClick={selectFiles}
-                    onDragOver={onDragOver}
-                    onDragLeave={onDragLeave}
-                    onDrop={onDrop}
-                  >
+                <div
+                  className="image-box box"
+                  onDragOver={onDragOver}
+                  onDragLeave={onDragLeave}
+                  onDrop={onDropImage}
+                >
+                  <div className="drag-area text-center" onClick={selectFiles}>
                     {isDragging ? (
                       <span>Drop Images Here</span>
                     ) : (
