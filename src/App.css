@@ -1,3 +1,6 @@
+body {
+  background-color: grey !important;
+}
 .image {
   opacity: 1;
   display: block;
